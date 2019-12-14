@@ -15,15 +15,13 @@
 # folders are created, as needed.  Files are processed in groups of parallel
 # background jobs. The group size is set using the CORES variable. Set CORES to
 # the number of CPU core(s) that you have (or less to reserve CPU(s) for other
-# work). If the source directories contain a COVERART image file, it will be
-# embedded in each associated target file.
+# work).
 #
-# Set the SOURCEDIR, TARGETDIR, COVERART, BITRATE and CORES for your needs.
+# Set the SOURCEDIR, TARGETDIR, BITRATE and CORES for your needs.
 #
 
-SOURCEDIR="PATH_TO_FLAC/flac"
-TARGETDIR="PATH_TO_MP3/mp3"
-COVERART="cover.jpg"
+SOURCEDIR="~/Music/flac"
+TARGETDIR="~/Music/mp3"
 BITRATE="192k"
 CORES=4
 
@@ -56,21 +54,10 @@ find ${BASEDIR}/${SOURCEDIR} -name '*' | until ${DONE}
     if [[ "${DONE}" = "true" || $(expr ${COUNTER} % ${CORES}) -eq 0 ]]; then
       while [ ${INDEX} -gt 0 ]
         do
-          SOURCEART=$(dirname "${SOURCE[$INDEX]}")/${COVERART}
-          if [ -f "${SOURCEART}" ]; then
-            echo "${COUNTER}.${INDEX}, COVER: ${SOURCE[$INDEX]}"
-            ffmpeg -nostdin -loglevel error -i "${SOURCE[$INDEX]}" \
-              -i "${SOURCEART}" -map 0:0 -map 1:0 \
-              -metadata:s:v title="Album cover" \
-              -metadata:s:v comment="Cover (front)" \
-              -map_metadata 0 -id3v2_version 3 -b:a ${BITRATE} "${TARGET[$INDEX]}" &
-            PID[INDEX]=$!
-          else
-            echo "${COUNTER}.${INDEX}, NOCOVER: ${SOURCE[$INDEX]}"
-            ffmpeg -nostdin -loglevel error -i "${SOURCE[$INDEX]}" \
-              -map_metadata 0 -id3v2_version 3 -b:a ${BITRATE} "${TARGET[$INDEX]}" &
-            PID[INDEX]=$!
-          fi
+          echo "${COUNTER}.${INDEX}, NOCOVER: ${SOURCE[$INDEX]}"
+          ffmpeg -nostdin -loglevel error -i "${SOURCE[$INDEX]}" \
+            -qscale:a 0 -map_metadata 0 "${TARGET[$INDEX]}" &
+          PID[INDEX]=$!
           INDEX=$(expr ${INDEX} - 1)
         done
       wait $(printf "%s " "${PID[@]}") >/dev/null 2>&1
