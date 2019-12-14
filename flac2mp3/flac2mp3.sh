@@ -20,23 +20,23 @@
 # Set the SOURCEDIR, TARGETDIR, BITRATE and CORES for your needs.
 #
 
-SOURCEDIR="~/Music/flac"
-TARGETDIR="~/Music/mp3"
+SOURCEDIR="$HOME/Music/flac"
+TARGETDIR="$HOME/Music/mp3"
 BITRATE="192k"
 CORES=4
 
-BASEDIR="$(dirname $0)"
+#BASEDIR="$(dirname $0)"
 SOURCEFMT="flac"
 TARGETFMT="mp3"
 COUNTER=0
 INDEX=0
 
 DONE=false
-find ${BASEDIR}/${SOURCEDIR} -name '*' | until ${DONE}
+find "${SOURCEDIR}" -name '*' | until ${DONE}
   do
     read SOURCE || DONE=true
     if [[ ! "${SOURCE}" =~ .*/\..* ]]; then
-      TARGET=$(echo "${SOURCE}" | sed -e "s#^${BASEDIR}/${SOURCEDIR}#${BASEDIR}/${TARGETDIR}#")
+      TARGET=$(echo "${SOURCE}" | sed -e "s#^${SOURCEDIR}#${TARGETDIR}#")
       if [[ -d "${SOURCE}" && ! -e "${TARGET}" ]]; then
         mkdir -p "${TARGET}"
       elif [[ -f "${SOURCE}" && ! -e "${TARGET}" ]]; then
