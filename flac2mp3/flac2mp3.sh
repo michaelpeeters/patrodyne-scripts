@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # PatroDyne: Patron Supported Dynamic Executables, http://patrodyne.org
 # MIT license: https://raw.githubusercontent.com/patrodyne/patrodyne-scripts/master/LICENSE
 #
@@ -22,7 +22,6 @@
 
 SOURCEDIR="$HOME/Music/flac"
 TARGETDIR="$HOME/Music/mp3"
-BITRATE="192k"
 CORES=4
 
 #BASEDIR="$(dirname $0)"
@@ -32,11 +31,13 @@ COUNTER=0
 INDEX=0
 
 DONE=false
+
 find "${SOURCEDIR}" -name '*' | until ${DONE}
   do
     read SOURCE || DONE=true
-    if [[ ! "${SOURCE}" =~ .*/\..* ]]; then
-      TARGET=$(echo "${SOURCE}" | sed -e "s#^${SOURCEDIR}#${TARGETDIR}#")
+    if [[ ! "${SOURCE}" =~ .*/\..* ]]
+    then
+      TARGET="$(echo "${SOURCE}" | sed -e "s#^${SOURCEDIR}#${TARGETDIR}#")"
       if [[ -d "${SOURCE}" && ! -e "${TARGET}" ]]; then
         mkdir -p "${TARGET}"
       elif [[ -f "${SOURCE}" && ! -e "${TARGET}" ]]; then
@@ -51,10 +52,11 @@ find "${SOURCEDIR}" -name '*' | until ${DONE}
       fi
     fi
 
-    if [[ "${DONE}" = "true" || $(expr ${COUNTER} % ${CORES}) -eq 0 ]]; then
+    if [[ "${DONE}" = "true" || $(expr ${COUNTER} % ${CORES}) -eq 0 ]]
+    then
       while [ ${INDEX} -gt 0 ]
         do
-          echo "${COUNTER}.${INDEX}, NOCOVER: ${SOURCE[$INDEX]}"
+          echo "${COUNTER}.${INDEX}: ${SOURCE[$INDEX]}"
           ffmpeg -nostdin -loglevel error -i "${SOURCE[$INDEX]}" \
             -qscale:a 0 -map_metadata 0 "${TARGET[$INDEX]}" &
           PID[INDEX]=$!
